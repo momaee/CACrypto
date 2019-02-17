@@ -1,5 +1,5 @@
 // =============================================================================
-//                                  Config 
+//                                  Config
 // =============================================================================
 
 // sets up web3.js
@@ -11,12 +11,73 @@ if (typeof web3 !== 'undefined')  {
 
 // Default account is the first one
 web3.eth.defaultAccount = web3.eth.accounts[0];
+
 // Constant we use later
 var GENESIS = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 // This is the ABI for your contract (get it from Remix, in the 'Compile' tab)
 // ============================================================
-var abi = []; // FIXME: fill this in with your contract's ABI
+var abi = [
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "creditor",
+				"type": "address"
+			},
+			{
+				"name": "amount",
+				"type": "uint32"
+			},
+			{
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "add_IOU",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "get_all_users",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "debtor",
+				"type": "address"
+			},
+			{
+				"name": "creditor",
+				"type": "address"
+			}
+		],
+		"name": "lookup",
+		"outputs": [
+			{
+				"name": "ret",
+				"type": "uint32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]; // FIXME: fill this in with your contract's ABI
 // ============================================================
 abiDecoder.addABI(abi);
 // call abiDecoder.decodeMethod to use this - see 'getAllFunctionCalls' for more
@@ -25,13 +86,13 @@ abiDecoder.addABI(abi);
 var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 
 // This is the address of the contract you want to connect to; copy this from Remix
-var contractAddress = '0x??????????????????????????????????????????????????????' // FIXME: fill this in with your contract's address/hash
+var contractAddress = '0x7c728214be9a0049e6a86f2137ec61030d0aa964' // FIXME: fill this in with your contract's address/hash
 
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 
 
 // =============================================================================
-//                            Functions To Implement 
+//                            Functions To Implement
 // =============================================================================
 
 // TODO: Add any helper functions here!
@@ -42,11 +103,13 @@ var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 // OR
 //   - a list of everyone currently owing or being owed money
 function getUsers() {
-	return [];
+	return BlockchainSplitwise.get_all_users();
+	// return [];
 }
 
 // TODO: Get the total amount owed by the user specified by 'user'
 function getTotalOwed(user) {
+	//BlockchainSplitwise.add_IOU(creditor, amount, "jackk");
 
 }
 
@@ -61,11 +124,11 @@ function getLastActive(user) {
 // The person you owe money is passed as 'creditor'
 // The amount you owe them is passed as 'amount'
 function add_IOU(creditor, amount) {
-
+	BlockchainSplitwise.add_IOU(creditor, amount, "jackk", {gas: 3e6});
 }
 
 // =============================================================================
-//                              Provided Functions 
+//                              Provided Functions
 // =============================================================================
 // Reading and understanding these should help you implement the above
 
@@ -117,7 +180,7 @@ function doBFS(start, end, getNeighbors) {
 	return null;
 }
 // =============================================================================
-//                                      UI 
+//                                      UI
 // =============================================================================
 
 // This code updates the 'My Account' UI with the results of your functions
@@ -149,5 +212,3 @@ $("#addiou").click(function() {
 function log(description, obj) {
 	$("#log").html($("#log").html() + description + ": " + JSON.stringify(obj, null, 2) + "\n\n");
 }
-
-
