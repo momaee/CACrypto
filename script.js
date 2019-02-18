@@ -42,20 +42,6 @@ var abi = [
 	},
 	{
 		"constant": true,
-		"inputs": [],
-		"name": "get_all_users",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address[]"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
 		"inputs": [
 			{
 				"name": "debtor",
@@ -76,6 +62,20 @@ var abi = [
 		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "get_all_users",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]; // FIXME: fill this in with your contract's ABI
 // ============================================================
@@ -86,7 +86,7 @@ abiDecoder.addABI(abi);
 var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 
 // This is the address of the contract you want to connect to; copy this from Remix
-var contractAddress = '0x7c728214be9a0049e6a86f2137ec61030d0aa964' // FIXME: fill this in with your contract's address/hash
+var contractAddress = '0x29e5f775a8e39c6daee69213d169acbca038ccc8' // FIXME: fill this in with your contract's address/hash
 
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 
@@ -109,14 +109,23 @@ function getUsers() {
 
 // TODO: Get the total amount owed by the user specified by 'user'
 function getTotalOwed(user) {
-	//BlockchainSplitwise.add_IOU(creditor, amount, "jackk");
-
+	var totalOwed = 0;
+	var allUsers = BlockchainSplitwise.get_all_users();
+	for(var i=0; i<allUsers.length; i++)
+		totalOwed += parseInt(BlockchainSplitwise.lookup(user, allUsers[i]));
+	return totalOwed;
 }
 
 // TODO: Get the last time this user has sent or received an IOU, in seconds since Jan. 1, 1970
 // Return null if you can't find any activity for the user.
 // HINT: Try looking at the way 'getAllFunctionCalls' is written. You can modify it if you'd like.
 function getLastActive(user) {
+	all_funcs = getAllFunctionCalls(contractAddress, "add_IOU");
+	log("test", all_funcs[0]);
+	log("default gas", web3.defaultGas);
+	var d = new Date();
+	d.setTime(all_funcs[0]['time']*1e3);
+	log("real time", d);
 
 }
 
@@ -140,6 +149,7 @@ function getAllFunctionCalls(addressOfContract, functionName) {
 	while (curBlock !== GENESIS) {
 	  var b = web3.eth.getBlock(curBlock, true);
 	  var txns = b.transactions;
+	  var blockTime = b.timestamp;
 	  for (var j = 0; j < txns.length; j++) {
 	  	var txn = txns[j];
 	  	// check that destination of txn is our contract
@@ -150,7 +160,8 @@ function getAllFunctionCalls(addressOfContract, functionName) {
 	  			var args = func_call.params.map(function (x) {return x.value});
 	  			function_calls.push({
 	  				from: txn.from,
-	  				args: args
+	  				args: args,
+					time: blockTime
 	  			})
 	  		}
 	  	}
@@ -208,7 +219,7 @@ $("#addiou").click(function() {
 });
 
 // This is a log function, provided if you want to display things to the page instead of the JavaScript console
-// Pass in a discription of what you're printing, and then the object to print
+// Pass in a description of what you're printing, and then the object to print
 function log(description, obj) {
 	$("#log").html($("#log").html() + description + ": " + JSON.stringify(obj, null, 2) + "\n\n");
 }
