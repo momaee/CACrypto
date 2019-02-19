@@ -18,14 +18,17 @@ contract BlockchainSplitwise {
         ret = allUsers[creditor].myCredits[debtor];
     }
 
-    function add_IOU(address creditor, uint32 amount, string memory _name) public{
+    function add_IOU(address creditor, uint32 amount) public{
+        require(
+            msg.sender != creditor,
+            "You cant owe yourself!!."
+        );
         if(!already_exist(creditor))
             allUsersAddress.push(creditor);
         if(!already_exist(msg.sender))
             allUsersAddress.push(msg.sender);
 
         allUsers[creditor].myCredits[msg.sender] = amount;
-        allUsers[creditor].name = _name;
     }
 
     function already_exist(address adr) internal view returns (bool) {
