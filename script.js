@@ -82,7 +82,7 @@ abiDecoder.addABI(abi);
 var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 
 // This is the address of the contract you want to connect to; copy this from Remix
-var contractAddress = '0x9020e6e0160bfd79351d7f8cd3c3393367e3ab19' // FIXME: fill this in with your contract's address/hash
+var contractAddress = '0x83effea83d9a05da7017c5cdd204726c2c3b4d2b' // FIXME: fill this in with your contract's address/hash
 
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 
@@ -118,7 +118,7 @@ function getTotalOwed(user) {
 	var totalOwed = 0;
 	var allUsers = BlockchainSplitwise.get_all_users();
 	for(var i=0; i<allUsers.length; i++)
-		totalOwed += parseInt(BlockchainSplitwise.lookup(user, allUsers[i]));
+		totalOwed += +(BlockchainSplitwise.lookup(user, allUsers[i]));
 	return totalOwed;
 }
 
@@ -127,13 +127,14 @@ function getTotalOwed(user) {
 // HINT: Try looking at the way 'getAllFunctionCalls' is written. You can modify it if you'd like.
 function getLastActive(user) {
 	all_funcs = getAllFunctionCalls(contractAddress, "add_IOU");
-	var t = null;
+	var t = 0;
 	for(var i=0; i<all_funcs.length; i++){
-		if(all_funcs[i]['from'] == user)
-			t = all_funcs[i]['time'];
+		if(all_funcs[i]['from'] == user || all_funcs[i]['args'][0] == user)
+			if(all_funcs[i]['time'] > t)
+				t = all_funcs[i]['time'];
 	}
-	// path = doBFS(web3.eth.defaultAccount, "0xa3751c55ff4e7ca3739be280f7ce39ea48c2fb2f", getNeighbors);
-	// log("path src defaultAccount and dst creditor", BlockchainSplitwise.lookup(user,web3.eth.defaultAccount));
+	if(t == 0)
+		t = null;
 	return t;
 }
 
@@ -159,7 +160,7 @@ function add_IOU(creditor, amount) {
 		if(i==0)
 			minEdge = +(BlockchainSplitwise.lookup(path[i],path[i+1]));
 
-		if(parseInt(BlockchainSplitwise.lookup(path[i],path[i+1])) < minEdge)
+		if(+(BlockchainSplitwise.lookup(path[i],path[i+1])) < minEdge)
 			minEdge = +(BlockchainSplitwise.lookup(path[i],path[i+1]));
 	}
 
@@ -175,10 +176,13 @@ function add_IOU(creditor, amount) {
 
 	}else {
 		for(var i=0; i<path.length-1; i++){
-			lastDebt = parseInt(BlockchainSplitwise.lookup(path[i],path[i+1]));
+			lastDebt = +(BlockchainSplitwise.lookup(path[i],path[i+1]));
 			newDebt = lastDebt - amount;
 			BlockchainSplitwise.add_IOU(path[i+1], newDebt, {from: path[i], gas: 3e6});
 		}
+		lastDebt = amount;
+		newDebt = lastDebt - amount;
+		BlockchainSplitwise.add_IOU(creditor, newDebt, {gas: 3e6});
 	}
 
 }
