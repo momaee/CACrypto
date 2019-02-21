@@ -8,6 +8,7 @@ contract BlockchainSplitwise {
     struct User {
         string name;
         mapping (address => uint32) myCredits;
+        bool meOrOthers;
     }
 
     mapping (address => User) allUsers;
@@ -17,7 +18,7 @@ contract BlockchainSplitwise {
         ret = allUsers[creditor].myCredits[debtor];
     }
 
-    function add_IOU(address creditor, uint32 amount) public{
+    function add_IOU(address creditor, uint32 amount, bool _meOrOthers) public{
         require(
             msg.sender != creditor,
             "You cant owe yourself!!."
@@ -28,6 +29,8 @@ contract BlockchainSplitwise {
             allUsersAddress.push(msg.sender);
 
         allUsers[creditor].myCredits[msg.sender] = amount;
+        allUsers[creditor].meOrOthers = _meOrOthers;
+        allUsers[msg.sender].meOrOthers = _meOrOthers;
     }
 
     function already_exist(address adr) internal view returns (bool) {

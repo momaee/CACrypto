@@ -19,6 +19,28 @@ var GENESIS = '0x000000000000000000000000000000000000000000000000000000000000000
 // ============================================================
 var abi = [
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "creditor",
+				"type": "address"
+			},
+			{
+				"name": "amount",
+				"type": "uint32"
+			},
+			{
+				"name": "_meOrOthers",
+				"type": "bool"
+			}
+		],
+		"name": "add_IOU",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -39,24 +61,6 @@ var abi = [
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "creditor",
-				"type": "address"
-			},
-			{
-				"name": "amount",
-				"type": "uint32"
-			}
-		],
-		"name": "add_IOU",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -82,7 +86,7 @@ abiDecoder.addABI(abi);
 var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 
 // This is the address of the contract you want to connect to; copy this from Remix
-var contractAddress = '0x83effea83d9a05da7017c5cdd204726c2c3b4d2b' // FIXME: fill this in with your contract's address/hash
+var contractAddress = '0x407dd5e662f193e7fb8122eed0865228d1b9d091' // FIXME: fill this in with your contract's address/hash
 
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 
@@ -129,7 +133,7 @@ function getLastActive(user) {
 	all_funcs = getAllFunctionCalls(contractAddress, "add_IOU");
 	var t = 0;
 	for(var i=0; i<all_funcs.length; i++){
-		if(all_funcs[i]['from'] == user || all_funcs[i]['args'][0] == user)
+		if((all_funcs[i]['from'] == user || all_funcs[i]['args'][0] == user) && all_funcs[i]['args'][2] == true)
 			if(all_funcs[i]['time'] > t)
 				t = all_funcs[i]['time'];
 	}
@@ -151,7 +155,7 @@ function add_IOU(creditor, amount) {
 	if(path == null){
 		lastDebt = +(BlockchainSplitwise.lookup(web3.eth.defaultAccount,creditor));
 		newDebt = lastDebt + amount;
-		BlockchainSplitwise.add_IOU(creditor, newDebt, {gas: 3e6});
+		BlockchainSplitwise.add_IOU(creditor, newDebt, true, {gas: 3e6});
 		return;
 	}
 
@@ -168,21 +172,21 @@ function add_IOU(creditor, amount) {
 		for(var i=0; i<path.length-1; i++){
 			lastDebt = +(BlockchainSplitwise.lookup(path[i],path[i+1]));
 			newDebt = lastDebt - minEdge;
-			BlockchainSplitwise.add_IOU(path[i+1], newDebt, {from: path[i], gas: 3e6});
+			BlockchainSplitwise.add_IOU(path[i+1], newDebt, false, {from: path[i], gas: 3e6});
 		}
 		lastDebt = amount;
 		newDebt = lastDebt - minEdge;
-		BlockchainSplitwise.add_IOU(creditor, newDebt, {gas: 3e6});
+		BlockchainSplitwise.add_IOU(creditor, newDebt, true, {gas: 3e6});
 
 	}else {
 		for(var i=0; i<path.length-1; i++){
 			lastDebt = +(BlockchainSplitwise.lookup(path[i],path[i+1]));
 			newDebt = lastDebt - amount;
-			BlockchainSplitwise.add_IOU(path[i+1], newDebt, {from: path[i], gas: 3e6});
+			BlockchainSplitwise.add_IOU(path[i+1], newDebt, false, {from: path[i], gas: 3e6});
 		}
 		lastDebt = amount;
 		newDebt = lastDebt - amount;
-		BlockchainSplitwise.add_IOU(creditor, newDebt, {gas: 3e6});
+		BlockchainSplitwise.add_IOU(creditor, newDebt, true, {gas: 3e6});
 	}
 
 }
