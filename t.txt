@@ -1,0 +1,10 @@
+npm install -g truffle
+truffle init
+truffle unbox
+
+migration.sol
+test dir
+contracts dir
+migration dir
+
+

@@ -18,66 +18,69 @@ var GENESIS = '0x000000000000000000000000000000000000000000000000000000000000000
 // This is the ABI for your contract (get it from Remix, in the 'Compile' tab)
 // ============================================================
 var abi = [
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "creditor",
-				"type": "address"
-			},
-			{
-				"name": "amount",
-				"type": "uint32"
-			},
-			{
-				"name": "_meOrOthers",
-				"type": "bool"
-			}
-		],
-		"name": "add_IOU",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "debtor",
-				"type": "address"
-			},
-			{
-				"name": "creditor",
-				"type": "address"
-			}
-		],
-		"name": "lookup",
-		"outputs": [
-			{
-				"name": "ret",
-				"type": "uint32"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "get_all_users",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address[]"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	}
-]; // FIXME: fill this in with your contract's ABI
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "debtor",
+          "type": "address"
+        },
+        {
+          "name": "creditor",
+          "type": "address"
+        }
+      ],
+      "name": "lookup",
+      "outputs": [
+        {
+          "name": "ret",
+          "type": "uint32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x713584a6"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "creditor",
+          "type": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint32"
+        },
+        {
+          "name": "_meOrOthers",
+          "type": "bool"
+        }
+      ],
+      "name": "add_IOU",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x2a80c8e0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get_all_users",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xe04070aa"
+    }
+  ]; // FIXME: fill this in with your contract's ABI
 // ============================================================
 abiDecoder.addABI(abi);
 // call abiDecoder.decodeMethod to use this - see 'getAllFunctionCalls' for more
@@ -86,9 +89,28 @@ abiDecoder.addABI(abi);
 var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 
 // This is the address of the contract you want to connect to; copy this from Remix
-var contractAddress = '0x407dd5e662f193e7fb8122eed0865228d1b9d091' // FIXME: fill this in with your contract's address/hash
+var contractAddress = '0x3F7D26B56B66a77D5100c7BAD15D0a0208A6437B' // FIXME: fill this in with your contract's address/hash
 
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
+
+// console.log('Current directory: ' + window.location.pathname);
+// BCSplitwiseAbi = JSON.parse(' file:///home/mohammad/CACrypto/build/contracts/BlockchainSplitwise.json');
+// BlockchainSplitwise = new web3.eth.contract(abi, {from: web3.eth.defaultAccount, gas: 3e6});
+
+
+// var fs=require('fs');
+// var data=fs.readFileSync('./build/contracts/BlockchainSplitwise.json', 'utf8');
+// var words=JSON.parse(data);
+//
+// fetch('./build/contracts/BlockchainSplitwise.json').then(response => {
+//   return response.json();
+// }).then(data => {
+//   // Work with your JSON data here..
+//   console.log(data.abi);
+// }).catch(err => {
+//   // What do when the request fails
+//   console.log('The request failed!');
+// });
 
 
 // =============================================================================
