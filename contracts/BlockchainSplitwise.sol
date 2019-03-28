@@ -9,7 +9,6 @@ contract BlockchainSplitwise {
         string name;
         mapping (address => uint32) myCredits;
         bool meOrOthers;
-        bool test;
     }
 
     mapping (address => User) allUsers;
